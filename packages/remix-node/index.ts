@@ -10,4 +10,9 @@ export { Headers, Request, Response, fetch } from "./fetch";
 
 export { installGlobals } from "./globals";
 
+export { parseMultipartUpload } from "./parseMultipartUpload";
+
 export { createFileSessionStorage } from "./sessions/fileStorage";
+
+export { createFileUploadHandler } from "./upload/fileUploadHandler";
+export { createMemoryUploadHandler } from "./upload/memoryUploadHandler";
