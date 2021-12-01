@@ -12,7 +12,7 @@ import {
   Response as NodeResponse,
   fetch as nodeFetch
 } from "./fetch";
-import { FormData as NodeFormData } from "./form-data";
+import { FormData as NodeFormData } from "./formData";
 
 declare global {
   namespace NodeJS {

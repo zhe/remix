@@ -4,7 +4,7 @@ import { rm, mkdir, readFile, stat } from "fs/promises";
 import { basename, dirname, extname, resolve as resolvePath } from "path";
 
 import { Meter } from "./meter";
-import type { UploadHandler } from "../form-data";
+import type { UploadHandler } from "../formData";
 
 export type FileUploadHandlerFilterArgs = {
   filename: string;

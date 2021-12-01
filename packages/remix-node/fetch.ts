@@ -5,9 +5,9 @@ import FormStream from "form-data";
 import type { RequestInfo, RequestInit, Response } from "node-fetch";
 import nodeFetch, { Request as NodeRequest } from "node-fetch";
 
-import { FormData as NodeFormData, isFile } from "./form-data";
-import type { UploadHandler } from "./form-data";
-import { parseFormData } from "./form-data";
+import { FormData as NodeFormData, isFile } from "./formData";
+import type { UploadHandler } from "./formData";
+import { parseFormData } from "./formData";
 
 export type { HeadersInit, RequestInfo, ResponseInit } from "node-fetch";
 export { Headers, Response } from "node-fetch";

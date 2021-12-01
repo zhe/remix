@@ -1,7 +1,7 @@
 import { Blob, File } from "@web-std/file";
 
 import { Request as NodeRequest } from "../fetch";
-import { FormData as NodeFormData, parseFormData } from "../form-data";
+import { FormData as NodeFormData, parseFormData } from "../formData";
 import { createMemoryUploadHandler } from "../upload/memoryUploadHandler";
 
 describe("FormData", () => {

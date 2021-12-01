@@ -3,7 +3,7 @@ import { Transform } from "stream";
 import { File as BufferFile } from "@web-std/file";
 
 import { Meter } from "./meter";
-import type { UploadHandler } from "../form-data";
+import type { UploadHandler } from "../formData";
 
 export type MemoryUploadHandlerFilterArgs = {
   filename: string;
