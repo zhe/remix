@@ -1,6 +1,6 @@
 import type { TransformCallback } from "stream";
 import { Transform } from "stream";
-import { File as BufferFile } from "web-file-polyfill";
+import { File as BufferFile } from "@web-std/file";
 
 import { Meter } from "./meter";
 import type { UploadHandler } from "../form-data";

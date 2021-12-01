@@ -16,7 +16,7 @@ export function loader() {
 export let action: ActionFunction = async ({ request }) => {
   let files: any[] = [];
 
-  let formData = await parseMultipartFormData({ request, uploadHandler });
+  let formData = await parseMultipartFormData(request, uploadHandler);
 
   let file = formData.get("file");
   if (file && typeof file !== "string") {

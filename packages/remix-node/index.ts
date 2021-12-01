@@ -8,6 +8,8 @@ export type {
 } from "./fetch";
 export { Headers, Request, Response, fetch } from "./fetch";
 
+export { FormData } from "./form-data";
+
 export { installGlobals } from "./globals";
 
 export { parseMultipartFormData } from "./parseMultipartFormData";

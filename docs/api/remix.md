@@ -1329,17 +1329,17 @@ It's to be used in place of `request.formData()`.
 
 ```diff
 - let formData = await request.formData();
-+ let formData = await parseMultipartFormData({ request, uploadHandler });
++ let formData = await parseMultipartFormData(request, uploadHandler);
 ```
 
 For example:
 
 ```tsx [2-5,7,23]
 export let action: ActionFunction = async ({ request }) => {
-  let formData = await parseMultipartFormData({
+  let formData = await parseMultipartFormData(
     request,
     uploadHandler // <-- we'll look at this deeper next
-  });
+  );
 
   // the returned value for the file field is whatever our uploadHandler returns.
   // Let's imagine we're uploading the avatar to s3,
@@ -1387,10 +1387,10 @@ let uploadHandler = createFileUploadHandler({
 });
 
 export let action: ActionFunction = async ({ request }) => {
-  let formData = await parseMultipartFormData({
+  let formData = await parseMultipartFormData(
     request,
     uploadHandler
-  });
+  );
 
   let file = formData.get("avatar");
 
@@ -1423,10 +1423,10 @@ let uploadHandler = createMemoryUploadHandler({
 });
 
 export let action: ActionFunction = async ({ request }) => {
-  let formData = await parseMultipartFormData({
+  let formData = await parseMultipartFormData(
     request,
     uploadHandler
-  });
+  );
 
   let file = formData.get("avatar");
 
@@ -1471,10 +1471,10 @@ export let action: ActionFunction = async ({ request }) => {
     return uploadedImage.secure_url;
   };
 
-  let formData = await parseMultipartFormData({
+  let formData = await parseMultipartFormData(
     request,
     uploadHandler
-  });
+  );
 
   let imageUrl = formData.get("avatar");
 

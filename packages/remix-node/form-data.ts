@@ -1,4 +1,3 @@
-import { File } from "web-file-polyfill";
 import Busboy from "busboy";
 import type { Readable } from "stream";
 
@@ -20,7 +19,7 @@ export async function parseFormData(
   abortController?: AbortController,
   uploadHandler?: UploadHandler
 ) {
-  let fields: Record<string, (File | string)[]> = {};
+  let formData = new NodeFormData();
   let fileWorkQueue: Promise<void>[] = [];
 
   await new Promise<void>(async (resolve, reject) => {
@@ -45,45 +44,47 @@ export async function parseFormData(
     }
 
     busboy.on("field", (name, value) => {
-      fields[name] = fields[name] || [];
-      fields[name].push(value);
+      formData.append(name, value);
     });
 
-    if (uploadHandler) {
-      busboy.on("file", (name, filestream, filename, encoding, mimetype) => {
-        if (filename) {
-          fileWorkQueue.push(
-            (async () => {
-              try {
-                let value = await uploadHandler({
-                  name,
-                  stream: filestream,
-                  filename,
-                  encoding,
-                  mimetype
-                });
+    busboy.on("file", (name, filestream, filename, encoding, mimetype) => {
+      if (uploadHandler && filename) {
+        fileWorkQueue.push(
+          (async () => {
+            try {
+              let value = await uploadHandler({
+                name,
+                stream: filestream,
+                filename,
+                encoding,
+                mimetype
+              });
 
-                if (value) {
-                  fields[name] = fields[name] || [];
-                  fields[name].push(value);
-                }
-              } catch (error: any) {
-                // Emit error to busboy to bail early if possible
-                busboy.emit("error", error);
-                // It's possible that the handler is doing stuff and fails
-                // *after* busboy has finished. Rethrow the error for surfacing
-                // in the Promise.all(fileWorkQueue) below.
-                throw error;
-              } finally {
-                filestream.resume();
+              if (typeof value !== "undefined") {
+                formData.append(name, value);
               }
-            })()
-          );
-        } else {
-          filestream.resume();
-        }
-      });
-    }
+            } catch (error: any) {
+              // Emit error to busboy to bail early if possible
+              busboy.emit("error", error);
+              // It's possible that the handler is doing stuff and fails
+              // *after* busboy has finished. Rethrow the error for surfacing
+              // in the Promise.all(fileWorkQueue) below.
+              throw error;
+            } finally {
+              filestream.resume();
+            }
+          })()
+        );
+      } else {
+        filestream.resume();
+      }
+
+      if (!uploadHandler) {
+        console.warn(
+          `Tried to parse multipart file upload but no uploadHandler was provided.`
+        );
+      }
+    });
 
     stream.on("error", abort);
     stream.on("aborted", abort);
@@ -95,51 +96,79 @@ export async function parseFormData(
 
   await Promise.all(fileWorkQueue);
 
-  return new RemixFormData(fields);
+  return formData;
 }
 
-export class RemixFormData implements FormData {
+function isBlob(value: any): value is Blob {
+  return (
+    typeof value === "object" &&
+    (typeof value.arrayBuffer === "function" ||
+      typeof value.size === "number" ||
+      typeof value.slice === "function" ||
+      typeof value.stream === "function" ||
+      typeof value.text === "function" ||
+      typeof value.type === "string")
+  );
+}
+
+export function isFile(blob: Blob): blob is File {
+  let file = blob as File;
+  return typeof file.name === "string";
+}
+
+class NodeFormData implements FormData {
   private _fields: Record<string, (File | string)[]>;
 
-  constructor(fields: Record<string, (File | string)[]> = {}) {
-    this._fields = fields;
+  constructor(form?: any) {
+    if (typeof form !== "undefined") {
+      throw new Error("Form data on the server is not supported.");
+    }
+    this._fields = {};
   }
+
   append(name: string, value: string | Blob, fileName?: string): void {
-    if (typeof value !== "string" && !(value instanceof Blob)) {
+    if (typeof value !== "string" && !isBlob(value)) {
       throw new Error("formData.append can only accept a string or Blob");
     }
 
     this._fields[name] = this._fields[name] || [];
-    if (typeof value === "string") {
+    if (typeof value === "string" || isFile(value)) {
       this._fields[name].push(value);
     } else {
       this._fields[name].push(new File([value], fileName || "unknown"));
     }
   }
+
   delete(name: string): void {
     delete this._fields[name];
   }
+
   get(name: string): FormDataEntryValue | null {
     let arr = this._fields[name];
-    return (arr && arr[0]) || null;
+    return (arr && arr.slice(-1)[0]) || null;
   }
+
   getAll(name: string): FormDataEntryValue[] {
     let arr = this._fields[name];
     return arr || [];
   }
+
   has(name: string): boolean {
     return name in this._fields;
   }
+
   set(name: string, value: string | Blob, fileName?: string): void {
-    if (typeof value !== "string" && !(value instanceof Blob)) {
-      throw new Error("formData.append can only accept a string or Blob");
+    if (typeof value !== "string" && !isBlob(value)) {
+      throw new Error("formData.set can only accept a string or Blob");
     }
-    if (typeof value === "string") {
+
+    if (typeof value === "string" || isFile(value)) {
       this._fields[name] = [value];
     } else {
       this._fields[name] = [new File([value], fileName || "unknown")];
     }
   }
+
   forEach(
     callbackfn: (
       value: FormDataEntryValue,
@@ -152,6 +181,7 @@ export class RemixFormData implements FormData {
       values.forEach(value => callbackfn(value, name, thisArg), thisArg);
     });
   }
+
   entries(): IterableIterator<[string, FormDataEntryValue]> {
     return Object.entries(this._fields)
       .reduce((entries, [name, values]) => {
@@ -160,9 +190,11 @@ export class RemixFormData implements FormData {
       }, [] as [string, FormDataEntryValue][])
       .values();
   }
+
   keys(): IterableIterator<string> {
     return Object.keys(this._fields).values();
   }
+
   values(): IterableIterator<FormDataEntryValue> {
     return Object.entries(this._fields)
       .reduce((results, [name, values]) => {
@@ -171,7 +203,10 @@ export class RemixFormData implements FormData {
       }, [] as FormDataEntryValue[])
       .values();
   }
+
   *[Symbol.iterator](): IterableIterator<[string, FormDataEntryValue]> {
     yield* this.entries();
   }
 }
+
+export { NodeFormData as FormData };

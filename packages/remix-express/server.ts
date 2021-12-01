@@ -1,3 +1,4 @@
+// This has been added as a global in node 15+
 import AbortController from "abort-controller";
 import type * as express from "express";
 import type {

@@ -1,4 +1,4 @@
-import { URL } from "url";
+// This has been added as a global in node 15+
 import AbortController from "abort-controller";
 import {
   Headers as NodeHeaders,
