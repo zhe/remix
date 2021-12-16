@@ -257,13 +257,20 @@ async function buildEverything(
     let browserBuildPromise = createBrowserBuild(config, options);
     let serverBuildPromise = createServerBuild(config, options);
 
-    return await Promise.all([
+    let [browserBuild, serverBuild] = await Promise.all([
       browserBuildPromise.then(async build => {
         await generateManifests(config, build.metafile!);
         return build;
       }),
       serverBuildPromise
     ]);
+
+    let serverModule = path.join(config.serverBuildDirectory, "index.js");
+    let serverModuleContent = await fsp.readFile(serverModule, "utf-8");
+    let serverModuleContentWithSourcemap = `${serverModuleContent}\n//# sourceMappingURL=./index.js.map`;
+    await fsp.writeFile(serverModule, serverModuleContentWithSourcemap);
+
+    return [browserBuild, serverBuild];
   } catch (err) {
     options.onBuildFailure(err as Error);
     return [undefined, undefined];
@@ -352,7 +359,7 @@ async function createServerBuild(
     bundle: true,
     logLevel: "silent",
     incremental: options.incremental,
-    sourcemap: options.sourcemap ? "inline" : false,
+    sourcemap: "external",
     // The server build needs to know how to generate asset URLs for imports
     // of CSS and other files.
     assetNames: "_assets/[name]-[hash]",
