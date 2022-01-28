@@ -4,19 +4,39 @@ import type {
   MetaFunction,
   RouteComponent
 } from "remix";
+import { useLoaderData } from "remix";
 import { redirect, json, Form } from "remix";
 
-let loader: LoaderFunction = async () => {
-  let headers = new Headers();
-  headers.append("Set-Cookie", "foo=bar");
-  headers.append("Set-Cookie", "bar=baz");
-  return json({}, { headers });
+import { userPrefsCookie } from "~/cookies";
+import { commitSession, getSession } from "~/sessionStorage";
+
+interface LoaderData {
+  something?: boolean;
+  somethingElse?: boolean;
+}
+
+let loader: LoaderFunction = async ({ request }) => {
+  let cookie = request.headers.get("Cookie");
+  let session = await getSession(cookie);
+  let userPrefs = (await userPrefsCookie.parse(cookie)) || {};
+
+  let something = userPrefs.something;
+  let somethingElse = session.get("something-else");
+
+  return json<LoaderData>({ something, somethingElse });
 };
 
-let action: ActionFunction = async () => {
+let action: ActionFunction = async ({ request }) => {
+  let cookie = request.headers.get("Cookie");
+  let session = await getSession(cookie);
+  let userPrefs = (await userPrefsCookie.parse(cookie)) || {};
+
+  userPrefs.something = true;
+  session.set("something-else", true);
+
   let headers = new Headers();
-  headers.append("Set-Cookie", "another=one");
-  headers.append("Set-Cookie", "how-about=two");
+  headers.append("Set-Cookie", await userPrefsCookie.serialize(userPrefs));
+  headers.append("Set-Cookie", await commitSession(session));
   return redirect("/multiple-set-cookies", { headers });
 };
 
@@ -25,11 +45,15 @@ let meta: MetaFunction = () => ({
 });
 
 let MultipleSetCookiesPage: RouteComponent = () => {
+  let data = useLoaderData<LoaderData>();
   return (
     <>
       <p>👋</p>
-      <Form method="post">
-        <button type="submit">Add cookies</button>
+      <pre id="dump">{JSON.stringify(data, null, 2)}</pre>
+      <Form id="form" method="post">
+        <button id="submit" type="submit">
+          Add cookies
+        </button>
       </Form>
     </>
   );
