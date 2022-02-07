@@ -84,6 +84,7 @@ export function RemixRootDefaultErrorBoundary({ error }: { error: Error }) {
         <main style={{ fontFamily: "system-ui, sans-serif", padding: "2rem" }}>
           <h1 style={{ fontSize: "24px" }}>Application Error</h1>
           <pre
+            id="error-message"
             style={{
               padding: "2rem",
               background: "hsla(10, 50%, 50%, 0.1)",

@@ -52,7 +52,7 @@ describe("actions", () => {
             throw redirect("/${REDIRECT_TARGET}")
           }
 
-          export default function () {
+          export default function ThrowsRedirect() {
             return (
               <Form method="post">
                 <button type="submit">Go</button>
@@ -62,8 +62,24 @@ describe("actions", () => {
         `,
 
         [`app/routes/${REDIRECT_TARGET}.jsx`]: js`
-          export default function () {
+          export default function RedirectTarget() {
             return <div>${PAGE_TEXT}</div>
+          }
+        `,
+
+        "app/routes/no-return.jsx": js`
+          import { Form } from "remix";
+
+          export function action() {
+            // Do nothing.
+          };
+
+          export default function NoReturn() {
+            return (
+              <Form method="post">
+                <button type="submit">Go</button>
+              </Form>
+            )
           }
         `
       }
@@ -120,5 +136,23 @@ describe("actions", () => {
     expect(responses[0].status()).toBe(204);
     expect(new URL(app.page.url()).pathname).toBe(`/${REDIRECT_TARGET}`);
     expect(await app.getHtml()).toMatch(PAGE_TEXT);
+  });
+
+  it("renders the RemixRootDefaultErrorBoundary", async () => {
+    let response = await fixture.postDocument(
+      "/no-return",
+      new URLSearchParams()
+    );
+    expect(response.status).toBe(500);
+    expect(selectHtml(await response.text(), "#error-message")).toContain(
+      `Error: You defined an action for route "routes/no-return" but didn't return anything from your \`action\` function. Please return a value or \`null\`.`
+    );
+
+    await app.goto("/no-return");
+    await app.clickSubmitButton("/no-return");
+    // our serverMode is "production", so we don't get the full error message here
+    expect(selectHtml(await app.getHtml(), "#error-message")).toContain(
+      `Error: Unexpected Server Error`
+    );
   });
 });
