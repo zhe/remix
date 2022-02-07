@@ -10,6 +10,7 @@ describe("actions", () => {
   let fixture: Fixture;
   let app: AppFixture;
 
+  let _consoleError: any;
   const FIELD_NAME = "message";
   const WAITING_VALUE = "Waiting...";
   const SUBMITTED_VALUE = "Submission";
@@ -18,6 +19,8 @@ describe("actions", () => {
   const PAGE_TEXT = "PAGE_TEXT";
 
   beforeAll(async () => {
+    _consoleError = console.error;
+    console.error = () => {};
     fixture = await createFixture({
       files: {
         "app/routes/urlencoded.jsx": js`
@@ -89,6 +92,7 @@ describe("actions", () => {
   });
 
   afterAll(async () => {
+    console.error = _consoleError;
     await app.close();
   });
 

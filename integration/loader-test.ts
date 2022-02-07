@@ -10,10 +10,13 @@ describe("loader", () => {
   let fixture: Fixture;
   let app: AppFixture;
 
+  let _consoleError: any;
   const ROOT_DATA = "ROOT_DATA";
   const INDEX_DATA = "INDEX_DATA";
 
   beforeAll(async () => {
+    _consoleError = console.error;
+    console.error = () => {};
     fixture = await createFixture({
       files: {
         "app/root.jsx": js`
@@ -58,6 +61,7 @@ describe("loader", () => {
   });
 
   afterAll(async () => {
+    console.error = _consoleError;
     await app.close();
   });
 
