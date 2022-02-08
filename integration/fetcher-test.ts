@@ -34,6 +34,21 @@ describe("useFetcher", () => {
                   <button type="submit" formMethod="post">post</button>
                 </fetcher.Form>
 
+                <button id="fetcher-load" type="button" onClick={() => {
+                  fetcher.load('/resource-route')
+                }}>
+                  load
+                </button>
+
+                <button id="fetcher-submit" type="button" onClick={() => {
+                  fetcher.submit(new URLSearchParams(), {
+                    method: 'post',
+                    action: '/resource-route'
+                  })
+                }}>
+                  submit
+                </button>
+
                 <pre>{fetcher.data}</pre>
               </>
             )
@@ -49,7 +64,7 @@ describe("useFetcher", () => {
     await app.close();
   });
 
-  test("can hit a loader", async () => {
+  test("Form can hit a loader", async () => {
     let enableJavaScript = await app.disableJavaScript();
     await app.goto("/");
     await app.clickSubmitButton({
@@ -62,7 +77,7 @@ describe("useFetcher", () => {
     await enableJavaScript();
   });
 
-  test("can hit an action", async () => {
+  test("Form can hit an action", async () => {
     let enableJavaScript = await app.disableJavaScript();
     await app.goto("/");
     await app.clickSubmitButton({
@@ -73,5 +88,17 @@ describe("useFetcher", () => {
     await app.page.waitForNavigation();
     expect(await app.getHtml("pre")).toMatch(CHEESESTEAK);
     await enableJavaScript();
+  });
+
+  test("load can hit a loader", async () => {
+    await app.goto("/");
+    await app.clickElement("#fetcher-load");
+    expect(await app.getHtml("pre")).toMatch(LUNCH);
+  });
+
+  test("submit can hit an action", async () => {
+    await app.goto("/");
+    await app.clickElement("#fetcher-submit");
+    expect(await app.getHtml("pre")).toMatch(CHEESESTEAK);
   });
 });
