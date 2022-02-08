@@ -162,13 +162,13 @@ describe("CatchBoundary", () => {
   // FIXME: this is broken, the request returns but the page doesn't update
   test.skip("own boundary, action, client transition from other route", async () => {
     await app.goto("/");
-    await app.clickSubmitButton(HAS_BOUNDARY_ACTION);
+    await app.clickSubmitButton({ action: HAS_BOUNDARY_ACTION });
     expect(await app.getHtml()).toMatch(OWN_BOUNDARY_TEXT);
   });
 
   test("own boundary, action, client transition from itself", async () => {
     await app.goto(HAS_BOUNDARY_ACTION);
-    await app.clickSubmitButton(HAS_BOUNDARY_ACTION);
+    await app.clickSubmitButton({ action: HAS_BOUNDARY_ACTION });
     expect(await app.getHtml()).toMatch(OWN_BOUNDARY_TEXT);
   });
 
@@ -181,13 +181,13 @@ describe("CatchBoundary", () => {
 
   it("bubbles to parent in action script transitions from other routes", async () => {
     await app.goto("/");
-    await app.clickSubmitButton(NO_BOUNDARY_ACTION);
+    await app.clickSubmitButton({ action: NO_BOUNDARY_ACTION });
     expect(await app.getHtml()).toMatch(ROOT_BOUNDARY_TEXT);
   });
 
   it("bubbles to parent in action script transitions from self", async () => {
     await app.goto(NO_BOUNDARY_ACTION);
-    await app.clickSubmitButton(NO_BOUNDARY_ACTION);
+    await app.clickSubmitButton({ action: NO_BOUNDARY_ACTION });
     expect(await app.getHtml()).toMatch(ROOT_BOUNDARY_TEXT);
   });
 

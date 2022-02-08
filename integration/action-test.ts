@@ -115,7 +115,7 @@ describe("actions", () => {
   it("redirects a thrown response on script transitions", async () => {
     await app.goto(`/${THROWS_REDIRECT}`);
     let responses = app.collectDataResponses();
-    await app.clickSubmitButton(`/${THROWS_REDIRECT}`);
+    await app.clickSubmitButton({ action: `/${THROWS_REDIRECT}` });
     expect(responses.length).toBe(1);
     expect(responses[0].status()).toBe(204);
     expect(new URL(app.page.url()).pathname).toBe(`/${REDIRECT_TARGET}`);

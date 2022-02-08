@@ -209,23 +209,45 @@ export async function createAppFixture(fixture: Fixture) {
        * `action` supplied, clicks it, and optionally waits for the network to
        * be idle before contininuing.
        *
-       * @param action The formAction of the button you want to click
-       * @param options `{ wait }` waits for the network to be idle before moving on
+       * @param options.wait waits for the network to be idle before moving on
+       * @param options.action The formAction of the button you want to click
+       * @param options.method The formMethod of the button you want to click
        */
-      clickSubmitButton: async (
-        action: string,
-        options: { wait: boolean } = { wait: true }
-      ) => {
-        let selector = `button[formaction="${action}"]`;
+      clickSubmitButton: async ({
+        wait = true,
+        action,
+        method
+      }: {
+        wait?: boolean;
+        action?: string;
+        method?: string;
+      }) => {
+        let selector: string;
+        if (action && method) {
+          selector = `button[formAction="${action}"][formMethod="${method}"]`;
+        } else if (action) {
+          selector = `button[formAction="${action}"]`;
+        } else if (method) {
+          selector = `button[formMethod="${method}"]`;
+        } else {
+          throw new Error(
+            "You must supply either an action or a method to clickSubmitButton"
+          );
+        }
+
         let el = await page.$(selector);
         if (!el) {
-          selector = `form[action="${action}"] button[type="submit"]`;
+          if (method) {
+            selector = `form[action="${action}"] button[type="submit"][formMethod="${method}"]`;
+          } else {
+            selector = `form[action="${action}"] button[type="submit"]`;
+          }
           el = await page.$(selector);
           if (!el) {
             throw new Error(`Can't find button for: ${action}`);
           }
         }
-        if (options.wait) {
+        if (wait) {
           await doAndWait(page, () => el.click());
         } else {
           await el.click();

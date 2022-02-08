@@ -90,7 +90,7 @@ describe("Forms", () => {
   it("posts to a loader without JavaScript", async () => {
     let enableJavaScript = await app.disableJavaScript();
     await app.goto("/get-submission");
-    await app.clickSubmitButton("/get-submission", { wait: false });
+    await app.clickSubmitButton({ wait: false, action: "/get-submission" });
     await app.page.waitForNavigation();
     expect(await app.getHtml("pre")).toMatch(CHEESESTEAK);
     await enableJavaScript();
@@ -98,7 +98,7 @@ describe("Forms", () => {
 
   it("posts to a loader", async () => {
     await app.goto("/get-submission");
-    await app.clickSubmitButton("/get-submission");
+    await app.clickSubmitButton({ action: "/get-submission" });
     expect(await app.getHtml("pre")).toMatch(CHEESESTEAK);
   });
 
