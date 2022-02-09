@@ -187,13 +187,13 @@ describe("ErrorBoundary", () => {
   // catch-boundary-test
   test.skip("own boundary, action, client transition from other route", async () => {
     await app.goto("/");
-    await app.clickSubmitButton({ action: HAS_BOUNDARY_ACTION });
+    await app.clickSubmitButton(HAS_BOUNDARY_ACTION);
     expect(await app.getHtml("main")).toMatch(OWN_BOUNDARY_TEXT);
   });
 
   test("own boundary, action, client transition from itself", async () => {
     await app.goto(HAS_BOUNDARY_ACTION);
-    await app.clickSubmitButton({ action: HAS_BOUNDARY_ACTION });
+    await app.clickSubmitButton(HAS_BOUNDARY_ACTION);
     expect(await app.getHtml("main")).toMatch(OWN_BOUNDARY_TEXT);
   });
 
@@ -206,13 +206,13 @@ describe("ErrorBoundary", () => {
 
   it("bubbles to parent in action script transitions from other routes", async () => {
     await app.goto("/");
-    await app.clickSubmitButton({ action: NO_BOUNDARY_ACTION });
+    await app.clickSubmitButton(NO_BOUNDARY_ACTION);
     expect(await app.getHtml("main")).toMatch(ROOT_BOUNDARY_TEXT);
   });
 
   it("bubbles to parent in action script transitions from self", async () => {
     await app.goto(NO_BOUNDARY_ACTION);
-    await app.clickSubmitButton({ action: NO_BOUNDARY_ACTION });
+    await app.clickSubmitButton(NO_BOUNDARY_ACTION);
     expect(await app.getHtml("main")).toMatch(ROOT_BOUNDARY_TEXT);
   });
 

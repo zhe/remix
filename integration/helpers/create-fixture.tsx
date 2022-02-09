@@ -213,15 +213,16 @@ export async function createAppFixture(fixture: Fixture) {
        * @param {string} options.action The formAction of the button you want to click
        * @param {string} options.method The formMethod of the button you want to click
        */
-      clickSubmitButton: async ({
-        wait = true,
-        action,
-        method
-      }: {
-        action: string;
-        wait?: boolean;
-        method?: string;
-      }) => {
+      clickSubmitButton: async (
+        action: string,
+        {
+          wait = true,
+          method
+        }: {
+          wait?: boolean;
+          method?: string;
+        } = {}
+      ) => {
         let selector: string;
         if (method) {
           selector = `button[formAction="${action}"][formMethod="${method}"]`;

@@ -67,10 +67,9 @@ describe("useFetcher", () => {
   test("Form can hit a loader", async () => {
     let enableJavaScript = await app.disableJavaScript();
     await app.goto("/");
-    await app.clickSubmitButton({
+    await app.clickSubmitButton("/resource-route", {
       wait: false,
-      method: "get",
-      action: "/resource-route"
+      method: "get"
     });
     await app.page.waitForNavigation();
     expect(await app.getHtml("pre")).toMatch(LUNCH);
@@ -80,10 +79,9 @@ describe("useFetcher", () => {
   test("Form can hit an action", async () => {
     let enableJavaScript = await app.disableJavaScript();
     await app.goto("/");
-    await app.clickSubmitButton({
+    await app.clickSubmitButton("/resource-route", {
       wait: false,
-      method: "post",
-      action: "/resource-route"
+      method: "post"
     });
     await app.page.waitForNavigation();
     expect(await app.getHtml("pre")).toMatch(CHEESESTEAK);
