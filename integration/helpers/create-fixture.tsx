@@ -170,7 +170,7 @@ export async function createAppFixture(fixture: Fixture) {
 
       /**
        * Finds a link on the page with a matching href, clicks it, and waits for
-       * the network to be idle before contininuing.
+       * the network to be idle before continuing.
        *
        * @param href The href of the link you want to click
        * @param options `{ wait }` waits for the network to be idle before moving on
@@ -207,32 +207,26 @@ export async function createAppFixture(fixture: Fixture) {
       /**
        * Finds the first submit button with `formAction` that matches the
        * `action` supplied, clicks it, and optionally waits for the network to
-       * be idle before contininuing.
+       * be idle before continuing.
        *
-       * @param options.wait waits for the network to be idle before moving on
-       * @param options.action The formAction of the button you want to click
-       * @param options.method The formMethod of the button you want to click
+       * @param {boolean} options.wait waits for the network to be idle before moving on
+       * @param {string} options.action The formAction of the button you want to click
+       * @param {string} options.method The formMethod of the button you want to click
        */
       clickSubmitButton: async ({
         wait = true,
         action,
         method
       }: {
+        action: string;
         wait?: boolean;
-        action?: string;
         method?: string;
       }) => {
         let selector: string;
-        if (action && method) {
+        if (method) {
           selector = `button[formAction="${action}"][formMethod="${method}"]`;
-        } else if (action) {
-          selector = `button[formAction="${action}"]`;
-        } else if (method) {
-          selector = `button[formMethod="${method}"]`;
         } else {
-          throw new Error(
-            "You must supply either an action or a method to clickSubmitButton"
-          );
+          selector = `button[formAction="${action}"]`;
         }
 
         let el = await page.$(selector);
