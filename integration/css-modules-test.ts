@@ -45,12 +45,15 @@ describe("CSS modules", () => {
     await app.close();
   });
 
-  it.todo("uses the hashed classname", async () => {
+  it.todo(
+    "uses the hashed classname"
+    /* async () => {
     //let enableJavaScript = await app.disableJavaScript();
     await app.goto("/one");
     await app.page.waitForNavigation();
 
     // TODO:
     expect(true).toBe(true);
-  });
+  } */
+  );
 });
