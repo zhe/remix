@@ -8,6 +8,11 @@ describe("CSS modules", () => {
   beforeAll(async () => {
     fixture = await createFixture({
       files: {
+        "remix.config.js": js`
+          module.exports = {
+            unstable_cssModules: true
+          };
+        `,
         "app/button.jsx": js`
           import styles from "~/button.module.css";
           export function Button(props) {
