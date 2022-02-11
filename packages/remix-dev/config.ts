@@ -128,6 +128,14 @@ export interface AppConfig {
    * routes.
    */
   ignoredRouteFiles?: string[];
+
+  /**
+   * Adds experimental support for CSS module imports.
+   *
+   * **Warning:** The API and implementation of experimental features may change
+   * between minor and patch versions.
+   */
+  unstable_cssModules?: boolean;
 }
 
 /**
@@ -224,6 +232,14 @@ export interface RemixConfig {
    * A server entrypoint relative to the root directory that becomes your server's main module.
    */
   serverEntryPoint?: string;
+
+  /**
+   * Adds experimental support for CSS module imports.
+   *
+   * **Warning:** The API and implementation of experimental features may change
+   * between minor and patch versions.
+   */
+  unstable_cssModules: boolean;
 }
 
 /**
@@ -367,6 +383,8 @@ export async function readConfig(
     serverBuildVirtualModule.id
   )};`;
 
+  let unstable_cssModules = appConfig.unstable_cssModules || false;
+
   return {
     appDirectory,
     cacheDirectory,
@@ -385,7 +403,8 @@ export async function readConfig(
     serverBuildTarget,
     serverBuildTargetEntryModule,
     serverEntryPoint: customServerEntryPoint,
-    mdx
+    mdx,
+    unstable_cssModules
   };
 }
 
